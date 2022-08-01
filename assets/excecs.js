@@ -54,13 +54,10 @@ let settings = new excercisesSettings(
 	input.introMp3,
 	input.okSound,
 	input.failSound,
-	input.coolDownTimer);
-
-
+	input.coolDownTimer,
+	input.okMessage);
 
 let paramsValue = new chooseExcecsParams();
-
-
 
 /*
  * Эти данные должны быть получены с бэка в идеале
@@ -75,4 +72,4 @@ for (let element  of input.cards){
 
 chooseExcecsBoard = new chooseExcecsBoard(resultProgression, paramsValue, 1, settings);
 
-chooseExcecsBoard.showStartMessage();
+chooseExcecsBoard.start();

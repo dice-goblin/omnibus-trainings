@@ -3,14 +3,18 @@ function generateCardNum(max, min = 0)
      return Math.floor(Math.random() * (max-1 - min)) + min;
 }
 
+//На входе получаем все что необходимо - карточек на сервере
+
 let input = {
 	"startInstructions":"Старт",
 	"introMp3": "assets\/lessons\/instructions\/look-and-listen.mp3",
 	"textInstruction": "\u0421\u043e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u043f\u043e\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c",
 	"okSound":"",
+	'okMessage': '109660-great-congratulation',
 	"failSound":"",
 	"coolDownTimer":5,
 	"cardsCount": 3,
+	"redirect":'',
 	"cards": [{
 		"MIGX_id": "1",
 		"text": "\u0434\u0435\u0440\u0435\u0432\u043e",
@@ -24,46 +28,36 @@ let input = {
 		"type": "\u0416\u0438\u0432\u043e\u0442\u043d\u043e\u0435",
 		"text": "\u041a\u043e\u0442"
 	}],
-	"template": {
-		"MIGX_id": "2",
-		"text": "template",
-		"image": "assets\/images\/logic1\/triangle.svg",
-		"num": "0"
-	}
+	"sequence": ['A','B','A','A','A','B']
 }
 
-let paramsValue = new progressionParams('img','div','card-placeholder','card','result-zone','cards-zone');
 let settings = new excercisesSettings(
 	input.startInstructions, 
 	input.textInstruction,
 	input.introMp3,
 	input.okSound,
 	input.failSound,
-	input.coolDownTimer);
+	input.coolDownTimer,
+	input.okMessage,
+	input.redirect);
 
 
-let cardNum = generateCardNum(input.cards.length);
+let paramsValue = new sequenceParams();
 
-/*name, type,  weight, src
+/*
  * Эти данные должны быть получены с бэка в идеале
  */
-
-let resultProgression = [];
-for (let element of input.cards){
-     resultProgression.push( new progressionCard(
-                  element.text,
-                  element.type, 
-                  (i+1) / input.cardsCount, 
-                  element.image));
+sequenceCards = [];
+for (let element  of input.cards){
+	sequenceCards.push( new chooseExcecsCard(
+				 element.text,
+				 element.type, 
+				 element.image));
 }
-
-
-progressionBoard = new progressionBoard(
-	resultProgression, 
+sequenceBoard = new sequenceBoard(
+	sequenceCards, 
 	paramsValue, 
-	input.template,
+	input.sequence,
 	settings);
 
-
-progressionBoard.showStartMessage();
-
+sequenceBoard.start();
