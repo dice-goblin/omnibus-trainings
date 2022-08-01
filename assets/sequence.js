@@ -49,7 +49,7 @@ let paramsValue = new sequenceParams();
  */
 sequenceCards = [];
 for (let element  of input.cards){
-	sequenceCards.push( new chooseExcecsCard(
+	sequenceCards.push( new sequenceCard(
 				 element.text,
 				 element.type, 
 				 element.image));

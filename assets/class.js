@@ -85,7 +85,6 @@ class board {
     removeMessage(containerType, containerClass) {
         let node = document.querySelector('.' + containerClass + ' ' + containerType);
         node.parentNode.removeChild(node);
-
     }
 
     registerEvents() {

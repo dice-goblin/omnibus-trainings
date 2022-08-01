@@ -140,7 +140,6 @@ class progressionBoard extends board {
 			evt.preventDefault();
 		});
 
-
 		document.addEventListener("dragleave", (evt) => {
 
 			this.removeHighlightZone(evt.target);

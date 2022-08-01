@@ -1,12 +1,6 @@
 class sequenceCard extends card{
 }
 
-
-
-
-
-
-
 class sequenceParams{
 	sourceNodeType = 'img';
 	destNodeType = 'div';
@@ -24,12 +18,11 @@ class sequenceParams{
 	destOkClass = 'ok';
 	patternNodeClass = 'pattern'
 	patternNodeType = 'div'
+	messageType = 'div';
+	messageBoxClass = 'message-zone';
+	starMessageClass = "message";
+
 }
-
-
-
-
-
 
 class sequenceBoard extends board{
 
@@ -37,24 +30,29 @@ class sequenceBoard extends board{
 
 	constructor(progression, params,sequence, settings){
 		super(progression, params,  settings);
-		this.progression = progression;
-		this.params = params;
 		this.sequence = sequence
 	}
 
-    makeZone() {
-		let parent = document.querySelector('.'+this.params.progressionLineDestClass);
-        for (let element = 0 ; element < this.sequence.length; element++) {
+	makeSeqence(){
+		let parent = document.querySelector('.'+this.params.progressionLineSourceClass);
+		for (let element of this.sequence) {
             let node = document.createElement(this.params.destNodeType);
             node.classList.add(this.params.destNodeClass);
-            node.dataset.weight = this.sequence[element];
-			node.textContent = this.sequence[element];
+            node.dataset.weight = element;
+			node.textContent = element;
             parent.appendChild(node);
 
         }
-    
-        return parent;
-    }
+	}
+	makeZone(){
+		let parent = document.querySelector('.'+this.params.progressionLineSourceClass);
+		for (let element of this.sequence) {
+            let node = document.createElement(this.params.destNodeType);
+            node.classList.add(this.params.destNodeClass);
+            parent.appendChild(node);
+
+        }
+	}
 
 	makeCards(){
 		let parent = document.querySelector('.'+this.params.progressionLineSourceClass);
@@ -69,8 +67,10 @@ class sequenceBoard extends board{
 		}	
 	}
 
-	dragStartLookUp(){
-		let params = this.params; 
+
+
+	registerActions(){
+		super.registerActions();
 		//@Task слушать только события связанные с зонами
 		document.addEventListener("dragstart", (evt) => {
 			if (this.checked === false) {
@@ -80,12 +80,10 @@ class sequenceBoard extends board{
 			
 		});
 	
-
 		document.addEventListener("dragend", (evt) =>{
 			this.removeHighlightCard(evt.target)
 		})
 	
-
 		document.addEventListener("dragenter", (evt) =>{
 			let currentCard = document.querySelector('.'+this.params.sourceSelectedClass);
 
@@ -99,17 +97,32 @@ class sequenceBoard extends board{
 			
 		});
 
-
 		document.addEventListener("dragover", (evt) =>{
 			evt.preventDefault();
 		});
 	
-
 		document.addEventListener("dragleave", (evt) =>{
-	
 			this.removeHighlightZone(evt.target);
 		});
+		
+		document.addEventListener("drop", (evt) => {
+			evt.preventDefault();
+			if (this.validateResult()) {
+				document.dispatchEvent(this.events['completed']);
+			}
+		});
 
+		document.addEventListener("drop", (evt) => {
+			evt.preventDefault();
+		});	
+
+		document.addEventListener("completed", (evt) => {
+			setTimeout(() => {
+				alert("все круто!");         
+				document.dispatchEvent(this.events['next-try']);
+			 });
+		});
+		
 		document.addEventListener("drop", (evt) =>{
 
 			evt.preventDefault();
@@ -209,33 +222,27 @@ class sequenceBoard extends board{
 	}
 
 	validateResult(help = true){
-		let params = this.params; 
-		let result;
-		document.addEventListener("drop", (evt) => {
-			evt.preventDefault();
-			if (this.targetZoneisFilled() === true) {
-				result = document.querySelector('.'+params.progressionLineDestClass).querySelectorAll('.'+params.sourceNodeClass);
-	
-			
-				for (let resultCard of result) {
-					if (help === true){
+		if (this.targetZoneisFilled() === true) {
+			result = document.querySelector('.'+params.progressionLineDestClass).querySelectorAll('.'+params.sourceNodeClass);
+		
+			for (let resultCard of result) {
+				if (help === true){
 
-						if (this.checkCard(resultCard) === true){
-							this.okCard(resultCard);
-						} else {this.failCard(resultCard);}
-					}
+					if (this.checkCard(resultCard) === true){
+						this.okCard(resultCard);
+					} else {this.failCard(resultCard);}
 				}
-			} 
-		});	
+			}
+		} 
 	}
 
 
 
 
 	run(){
-		//this.makeZone();
-		//this.makeCards();
 		super.run();
-		this.dragStartLookUp();
+		this.makeSeqence();
+		this.makeZone();
+		this.makeCards();
 	}
 }
