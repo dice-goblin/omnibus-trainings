@@ -1,0 +1,69 @@
+body{
+  display:flex;
+  flex-direction: column;
+  overflow: hidden;
+  aspect-ratio: 1;
+  margin: auto;
+  font-family: Arial;
+  font-size: 18vh;
+  text-transform: uppercase;
+}
+.template-zone, .cards-zone, .result-zone{
+margin: 0 auto;
+}
+/*
+* Классы отвечаюище за целевую зону
+*/
+ 
+  .overed {
+    background:gray;
+    }
+
+    .message-zone{
+      text-align:center;
+      cursor:pointer;
+    }
+.message-zone div{
+  font-size: 96px;
+  font-weight: bold;
+}
+
+/*
+* Классы, отвечающие за исходную зону
+*/
+.card, .card-placeholder, .cards-zone div {
+    height: 20vh;
+    width: 20vh;
+    margin: 0 auto;
+    display:inline-block;
+    cursor: pointer;
+  }
+
+  .card-placeholder{
+    border:1px solid;
+  }
+
+  .error {
+      border-color:red;
+  }
+  
+  .right {
+      border-color:green;	
+  }
+  
+  .result-zone {
+    display: block;
+  }
+  
+  .error {
+      border-color:red;
+  }
+  
+  .selected {
+      background:white;
+  }
+  
+.OK{
+  border: 1px solid green;
+}
+
