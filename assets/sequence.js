@@ -18,18 +18,23 @@ let input = {
 	"cards": [{
 		"MIGX_id": "1",
 		"text": "\u0434\u0435\u0440\u0435\u0432\u043e",
-		"image": "assets\/images\/logic1\/6132448-36471.svg",
+		"src": "B",
+		"type": "B",
 		"num": "1"
 	}, {
 		"MIGX_id": "3",
 		"name": "\u041a\u043e\u0442",
-		"src": "",
+		"src": "A",
 		"num": "1",
-		"type": "\u0416\u0438\u0432\u043e\u0442\u043d\u043e\u0435",
+		"type": "A",
 		"text": "\u041a\u043e\u0442"
 	}],
-	"sequence": ['A','B','A','A','A','B']
+	'sequence':{
+		"sequence": ['A','B','A','A','A','B'],
+		"sequenceEqu": {'A':"A", 'B':"B"},
+		"sequencePreNum":3}
 }
+
 
 let settings = new excercisesSettings(
 	input.startInstructions, 

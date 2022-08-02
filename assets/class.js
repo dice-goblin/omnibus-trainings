@@ -11,6 +11,22 @@ class card {
     }
 }
 
+class sequenceSetting{
+    sequence = [];
+    sequenceAssoc = [];
+    sequencePreFill;
+
+    constructor(sequence, sequenceEqu, sequencePreFill){
+        this.sequence = sequence;
+        this.sequenceAssoc = sequenceEqu;
+        this.sequencePreFill = sequencePreFill;
+    }
+
+    getAssocType(sequenceName){
+        return this.sequenceAssoc[sequenceName];
+    }
+}
+
 
 class board {
     progression;

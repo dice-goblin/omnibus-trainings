@@ -1,14 +1,14 @@
-class sequenceCard extends card{
+class sequenceCard extends card {
 }
 
-class sequenceParams{
+class sequenceParams {
 	sourceNodeType = 'img';
 	destNodeType = 'div';
 	destNodeClass = 'card-placeholder';
 	sourceNodeClass = 'card';
 	progressionLineDestClass = 'result-zone';
 	progressionLineSourceClass = 'cards-zone';
-	sourceSelectedClass='selected';
+	sourceSelectedClass = 'selected';
 	destErrorClass = 'error';
 	sourceOveredClass = 'overed';
 	sourceCheckedClass = 'checked';
@@ -24,52 +24,59 @@ class sequenceParams{
 
 }
 
-class sequenceBoard extends board{
+
+
+class sequenceBoard extends board {
 
 	sequence;
 
-	constructor(progression, params,sequence, settings){
-		super(progression, params,  settings);
-		this.sequence = sequence
+
+	constructor(progression, params, sequence, settings) {
+		super(progression, params, settings);
+		this.sequence = new sequenceSetting(
+			sequence.sequence,
+			sequence.sequenceEqu,
+			sequence.sequencePreNum);
 	}
 
-	makeSeqence(){
-		let parent = document.querySelector('.'+this.params.progressionLineSourceClass);
-		for (let element of this.sequence) {
-            let node = document.createElement(this.params.destNodeType);
-            node.classList.add(this.params.destNodeClass);
-            node.dataset.weight = element;
+	makeSeqence() {
+		let parent = document.querySelector('.' + this.params.patternNodeClass);
+		for (let element of this.sequence.sequence) {
+			let node = document.createElement(this.params.destNodeType);
+			node.classList.add(this.params.destNodeClass);
+			node.dataset.type = element;
 			node.textContent = element;
-            parent.appendChild(node);
-
-        }
-	}
-	makeZone(){
-		let parent = document.querySelector('.'+this.params.progressionLineSourceClass);
-		for (let element of this.sequence) {
-            let node = document.createElement(this.params.destNodeType);
-            node.classList.add(this.params.destNodeClass);
-            parent.appendChild(node);
-
-        }
+			parent.appendChild(node);
+		}
 	}
 
-	makeCards(){
-		let parent = document.querySelector('.'+this.params.progressionLineSourceClass);
-		for (let element = 0 ; element < this.progression.length; element++) {
-            let node = document.createElement(this.params.sourceNodeType);
+	makeZone() {
+		let parent = document.querySelector('.' + this.params.progressionLineDestClass);
+		for (let element of this.sequence.sequence) {
+			let node = document.createElement(this.params.destNodeType);
+			node.classList.add(this.params.destNodeClass);
+			node.dataset.type = element;
+			node.textContent = element;
+			parent.appendChild(node);
+		}
+	}
+
+	makeCards() {
+		let parent = document.querySelector('.' + this.params.progressionLineSourceClass);
+		for (let element = 0; element < this.progression.length; element++) {
+			let node = document.createElement(this.params.sourceNodeType);
 			node.classList.add(this.params.sourceNodeClass);
 			node.draggable = true;
 			node.textContent = this.progression[element].name;
-			node.dataset.weight = this.progression[element].weight;
-			node.src=this.progression[element].src;
+			node.dataset.type = this.progression[element].type;
+			node.src = this.progression[element].src;
 			parent.appendChild(node);
-		}	
+		}
 	}
 
 
 
-	registerActions(){
+	registerActions() {
 		super.registerActions();
 		//@Task слушать только события связанные с зонами
 		document.addEventListener("dragstart", (evt) => {
@@ -77,53 +84,44 @@ class sequenceBoard extends board{
 				this.removeHighlightCard(evt.target)
 			}
 			this.highlightCard(evt.target);
-			
+
 		});
-	
-		document.addEventListener("dragend", (evt) =>{
+
+		document.addEventListener("dragend", (evt) => {
 			this.removeHighlightCard(evt.target)
 		})
-	
-		document.addEventListener("dragenter", (evt) =>{
-			let currentCard = document.querySelector('.'+this.params.sourceSelectedClass);
 
-			if (this.isCurrentZone(currentCard,evt.target) === true &&
-			    this.isEmptyZone(evt.target)===true && 
+		document.addEventListener("dragenter", (evt) => {
+			let currentCard = document.querySelector('.' + this.params.sourceSelectedClass);
+
+			if (this.isCurrentZone(currentCard, evt.target) === true &&
+				this.isEmptyZone(evt.target) === true &&
 				this.isCard(evt.target) !== true &&
-				this.isZone(evt.target) === true){
+				this.isZone(evt.target) === true) {
 
 				this.highlightZone(evt.target);
 			}
-			
+
 		});
 
-		document.addEventListener("dragover", (evt) =>{
+		document.addEventListener("dragover", (evt) => {
 			evt.preventDefault();
 		});
-	
-		document.addEventListener("dragleave", (evt) =>{
+
+		document.addEventListener("dragleave", (evt) => {
 			this.removeHighlightZone(evt.target);
 		});
-		
-		document.addEventListener("drop", (evt) => {
-			evt.preventDefault();
-			if (this.validateResult()) {
-				document.dispatchEvent(this.events['completed']);
-			}
-		});
 
-		document.addEventListener("drop", (evt) => {
-			evt.preventDefault();
-		});	
+
 
 		document.addEventListener("completed", (evt) => {
 			setTimeout(() => {
-				alert("все круто!");         
+				alert("все круто!");
 				document.dispatchEvent(this.events['next-try']);
-			 });
+			});
 		});
-		
-		document.addEventListener("drop", (evt) =>{
+
+		document.addEventListener("drop", (evt) => {
 
 			evt.preventDefault();
 
@@ -133,116 +131,132 @@ class sequenceBoard extends board{
 			 * 2. Целевая зона не та же, что и источник
 			 */
 
-			let currentCard = document.querySelector('.'+params.sourceSelectedClass);
-			if (this.isCurrentZone(currentCard,evt.target) === true &&
-				this.isEmptyZone(evt.target)===true && 
+			let currentCard = document.querySelector('.' + this.params.sourceSelectedClass);
+			if (this.isCurrentZone(currentCard, evt.target) === true &&
+				this.isEmptyZone(evt.target) === true &&
 				this.isCard(evt.target) !== true &&
-				this.isZone(evt.target) === true){
-					this.removeHighlightZone(evt.target);
-					this.placeCard(currentCard,evt.target);
+				this.isZone(evt.target) === true &&
+				this.checkCard(currentCard, evt.target) === true) {
+					this.placeCard(currentCard, evt.target);
 					this.removeHighlightCard(currentCard);
 					this.removeHighlightZone(evt.target);
-			}  
+			} else {
+				this.removeHighlightCard(currentCard);
+				this.removeHighlightZone(evt.target);
+			}
+
+			if (this.validateResult()) {
+				document.dispatchEvent(this.events['completed']);
+			}
 		});
 	}
 
 	isCard(target) {
-		if (target.className === this.params.sourceNodeClass ){
-			return true;
-		} else return false;	
-	}
-
-	isZone(target) {
-		if (target.classList.contains(this.params.destNodeClass) === true){
+		if (target.className === this.params.sourceNodeClass) {
 			return true;
 		} else return false;
 	}
 
-	isCurrentZone(source, target){
-		if (source.className !== target.className){
+	isZone(target) {
+		if (target.classList.contains(this.params.destNodeClass) === true) {
+			return true;
+		} else return false;
+	}
+
+	isCurrentZone(source, target) {
+		if (source.className !== target.className) {
 			return true;
 		} else return false
 	}
 
-	isEmptyZone(target){
-		if(target.childElementCount === 0 ||
-			 (target.className === this.params.progressionLineSourceClass &&
-			  target.childElementCount <= this.progression.length )) {
+	isEmptyZone(target) {
+		if (target.childElementCount === 0 ||
+			(target.className === this.params.progressionLineSourceClass &&
+				target.childElementCount <= this.progression.length)) {
 
 			return true;
 		} else return false;
 	}
 
-	okCard(target){
+	okCard(target) {
 		target.classList.add(this.params.destOkClass)
 	}
 
-	failCard(target){
+	failCard(target) {
 		target.classList.add(this.params.destErrorClass)
 	}
 
-	targetZoneisFilled(){
-		if (document.querySelector('.'+this.params.progressionLineDestClass).querySelectorAll('.'+this.params.sourceNodeClass).length === this.progression.length){
+	targetZoneisFilled() {
+		if (document.querySelector('.' + this.params.progressionLineDestClass).querySelectorAll('.' + this.params.sourceNodeClass).length === this.sequence.sequence.length) {
 			return true;
 		}
 		return false;
 	}
 
-	highlightCard(target){
+	highlightCard(target) {
 		target.classList.add(this.params.sourceSelectedClass);
 	}
 
-	removeHighlightCard(target){
+	removeHighlightCard(target) {
 		target.classList.remove(this.params.sourceSelectedClass);
 		target.classList.remove(this.params.destErrorClass);
 	}
 
-	highlightZone(target){
+	highlightZone(target) {
 		target.classList.add(this.params.sourceOveredClass);
 	}
 
-	removeHighlightZone(target){
+	removeHighlightZone(target) {
 		target.classList.remove(this.params.sourceOveredClass);
 	}
 
-	removeCard(card,source){
-		source.removeChild(card);     
+	removeCard(card, source) {
+		source.removeChild(card);
 	}
 
-	placeCard(card,target){
-		card.classList.add(this.params.sourceCheckedClass);    	// Добавляем метку что карочка перенесена
-		target.appendChild(card.cloneNode()); 					 			// Копируем карточку в целевую позицию
-		target.classList.add(this.params.destCheckedClass);		 // Добавляем метку в целевую зону, что она занята
+	placeCard(card, target) {
+		//card.classList.add(this.params.sourceCheckedClass);    	// Добавляем метку что карочка перенесена
+
+		target.textContent = "";				 			// Копируем карточку в целевую позицию
+		target.classList.add(this.params.destCheckedClass);	
+		this.removeHighlightCard(card); // Добавляем метку в целевую зону, что она занята
+		target.appendChild(card.cloneNode());
 	}
 
-	checkCard(target){
-		if (target.parentNode.dataset.weight === target.dataset.weight){
+	checkCard(card, target) {
+		if (card.dataset.type === target.dataset.type) {
 			return true;
 		} else return false;
 	}
 
-	validateResult(help = true){
+	validateResult(help = true) {
 		if (this.targetZoneisFilled() === true) {
-			result = document.querySelector('.'+params.progressionLineDestClass).querySelectorAll('.'+params.sourceNodeClass);
-		
-			for (let resultCard of result) {
-				if (help === true){
+				return true;
+		}
+		else {
+			return false;
 
-					if (this.checkCard(resultCard) === true){
-						this.okCard(resultCard);
-					} else {this.failCard(resultCard);}
-				}
-			}
-		} 
+		}
+	}
+
+	preFillZone() {
+		for (let i = 1; i <= this.sequence.sequencePreFill; i++) {
+			let parent = document.querySelector('.' + this.params.progressionLineDestClass + ' .' + this.params.destNodeClass + ':nth-child(' + i + ')');
+			let node = document.querySelector('.' + this.params.sourceNodeClass + '[data-type=' + this.sequence.getAssocType(this.sequence.sequence[i - 1]) + ']');
+			parent.textContent = "";
+			parent.classList.add(this.params.destCheckedClass);
+			parent.appendChild(node.cloneNode());
+		}
 	}
 
 
 
 
-	run(){
+	run() {
 		super.run();
 		this.makeSeqence();
 		this.makeZone();
 		this.makeCards();
+		this.preFillZone();
 	}
 }
