@@ -1,0 +1,14 @@
+.message-container{
+  display:flex;
+  flex-direction: column;
+  overflow: hidden;
+  aspect-ratio: 1;
+  margin: auto;
+  font-family: Arial;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer ;
+}
+.upper{
+  font-size: 18vh;
+}
