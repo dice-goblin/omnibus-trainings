@@ -4,10 +4,12 @@ class Task {
     voiceover;
     summand = [];
 
-    constructor(subjectPic,
-        task,
+    constructor(
+        task = '',
+        summand,
+        subjectPic,
         voiceover,
-        summand) {
+    ) {
         this.subjectPic = subjectPic;
         this.task = task;
         this.voiceover = voiceover;
@@ -22,42 +24,125 @@ class Task {
         return this.getTask().split('.')[step];
     }
 
-    getVoiseover(step){
+    getVoiseover(step) {
         return this.voiceover[step];
     }
 
-    getSummand(n){
+    getSummand(n) {
         if (n > this.summand.length) throw new Error();
-            return this.summand[n]
+        return this.summand[n]
+    }
+
+    getImage(n) {
+        return '/'; //@Implement
     }
 }
 
 class boardParams {
-    message = {
-        'elementClass':'message-container',
-        'smallElementClass':'',
-        'upper':'upper',
-        'element':'div'
+    structure = {
+        'message': {
+            'container': 'message-container',
+            'currentElementClass': 'current-container',
+            'staticElementClass': 'static-container',
+            'smallElementClass': '',
+            'upper': 'upper',
+            'normal': 'normal',
+            'element': 'div'
+        },
+        'table': {
+            'container': 'table-container',
+            'textContainer': {
+                'class': 'imgLine',
+                'element': 'div'
+            },
+            'graphContainer': {
+                'class': 'imgLine',
+                'element': 'img'
+            },
+            'summandContainer': {
+                'class': 'imgLine',
+                'element': 'div'
+            },
+            'cardsContainer': {
+                'class': 'imgLine',
+                'element': 'img'
+            }
+        }
+    }
+    signs = {
+        'plus': ['положили'],
+        'minus': ['убрали']
     }
     delay = {
-        'start':5000,
+        'start': 5000,
     }
 
     constructor(message, delay) {
     }
 
-    getMessageElement(){
-        return this.message.element;
-    }
-    getMessageElementClass(){
-        return this.message.elementClass;
-    }
-    
-    getUpperClass(){
-        return this.message.upper;
+    getContainer(type) {
+        switch (type) {
+            case 'table':
+                return this.structure.table.container;
+            case ' message':
+                return this.structure.message.container;
+        }
     }
 
-    getStartDelay(){
+    getTableElementClass(type) {
+        switch (type) {
+            case 'textContainer':
+                return this.structure.table.textContainer.imgLineClass;
+            case 'imgContainer':
+                return this.structure.table.imgContainer.imgLineClass;
+            case 'summandContainer':
+                return this.structure.table.summandContainer.imgLineClass;
+            case 'cardsContainer':
+                return this.structure.table.cardsContainer.imgLineClass;
+            default:
+                throw new Error();
+        }
+    }
+
+    getTableElement(type) {
+        switch (type) {
+            case 'textContainer':
+                return this.structure.table.textContainer.element;
+            case 'imgContainer':
+                return this.structure.table.graphContainer.element;
+            case 'summandContainer':
+                return this.structure.table.summandContainer.element;
+            case 'cardsContainer':
+                return this.structure.table.cardsContainer.element;
+            default:
+                throw new Error();
+        }
+    }
+
+    getMessageElement() {
+        return this.structure.message.element;
+    }
+    getMessageElementClass() {
+        return this.structure.message.container;
+    }
+
+    getCurrentMessageClass() {
+        return this.structure.message.currentElementClass;
+    }
+
+    getStaticMessageClass() {
+        return this.structure.message.staticElementClass;
+    }
+
+    getUpperClass() {
+        return this.structure.message.upper;
+    }
+
+    getNormalClass() {
+        return this.structure.message.normal;
+    }
+
+    getStartDelay() {
         return this.delay.start;
     }
 }
@@ -76,100 +161,130 @@ class mathBoard {
         this.registerActions();
     }
 
-    registerEvents(){
+    registerEvents(details = { 'step': 0 }) {
         this.events['onStartEnd'] = new CustomEvent('onStartEnd', {});
         this.events['onTaskStart'] = new CustomEvent('onTaskStart', {});
         this.events['onTaskEnd'] = new CustomEvent('onTaskEnd', {});
-        this.events['onTaskStepStart'] = new CustomEvent('onTaskStepStart', {detail:{'step':'0'}});
+        this.events['onTaskStepStart'] = new CustomEvent('onTaskStepStart', { 'detail': details });
+        this.events['onTaskStep1'] = new CustomEvent('onTaskStep1', { 'detail': details });
+        this.events['onTaskStep2'] = new CustomEvent('onTaskStep2', { 'detail': details });
         this.events['onTaskStepEnd'] = new CustomEvent('onTaskStepEnd', {});
     }
+    /**
+     * 
+     * СОБЫТИЯ
+     * 
+     */
 
-    registerActions(){
-        let startNode = document.querySelector('.'+this.boardParams.getMessageElementClass());
-        startNode.addEventListener("click", (evt) => {
-			setTimeout(() => {
+    registerActions() {
+        // let startNode = document.querySelector(this.boardParams.getMessageElementClass());
+        document.addEventListener("click", (evt) => {
+            setTimeout(() => {
                 this.removeStartMessage();
                 document.dispatchEvent(this.events['onTaskStart']);
             }, this.boardParams.getStartDelay());
-		});
+        });
 
         document.addEventListener("onStartEnd", (evt) => {
-			setTimeout(() => {
+            setTimeout(() => {
                 this.removeStartMessage();
                 document.dispatchEvent(this.events['onTaskStart']);
             }, this.boardParams.getStartDelay());
-		});
+        });
 
         document.addEventListener("onTaskStart", (evt) => {
             this.showTask();
-            this.playTask();
+            this.playTask(); //@Implement
             document.dispatchEvent(this.events['onTaskEnd']);
 
-		});
+        });
 
         document.addEventListener("onTaskEnd", (evt) => {
-            this.makeTaskSmaller();
+            this.moveTastToStaticContainer();
             document.dispatchEvent(this.events['onTaskStepStart']);
-		});
+        });
 
         document.addEventListener("onTaskStepStart", (evt) => {
-            this.makeTaskSmaller();
 
-            switch(evt.detail.step){
-                case '0':
-                    this.showTaskStep(evt.detail.step);
-                    this.playTask(evt.detail.step);
-                    //this.initTable();
-                    //вывести вводные
-                    evt.detail.step +=1;
-                    break;
-                case '1':
-                    //Вывести кусок
-                    //озвучить кусок
-                    //вывести таблицу
-                    //вывести вводные
-                    break;
-                case '2':
-                    break;
-                default:
-                    throw new Error();
-            }
-            document.dispatchEvent(this.events['onTaskStepStart']);
-		});
+            this.showTaskStep(evt.detail.step);
+            this.playTask(evt.detail.step);
+            evt.detail.step += 1;
+            document.dispatchEvent(this.events['onTaskStep1'], { 'step': 1 });
+            // document.dispatchEvent(this.events['onTaskStepStart']);
+        });
+
+        document.addEventListener("onTaskStep1", (evt) => {
+
+            this.showTaskStep(evt.detail.step);
+            this.playTask(evt.detail.step);
+            evt.detail.step += 1;
+            document.dispatchEvent(this.events['onTaskStep2'], { 'step': 2 });
+
+            // document.dispatchEvent(this.events['onTaskStepStart']);
+        });
+
+        document.addEventListener("onTaskStep2", (evt) => {
+
+
+            this.showTaskStep(evt.detail.step);
+            this.playTask(evt.detail.step);
+            evt.detail.step += 1;
+
+            // document.dispatchEvent(this.events['onTaskStepStart']);
+        });
 
     }
 
-    run(){
+    run() {
         this.showStartMessage();
     }
 
+
+
     showStartMessage() {
-        this.showMessage(this.boardParams.getMessageElementClass(), this.boardParams.getMessageElement(), "Старт");
-        document.dispatchEvent(this.events['onStartEnd']);
-     }
+        this.showMessage(this.boardParams.getCurrentMessageClass(), this.boardParams.getMessageElement(), [], "Старт");
 
-     removeStartMessage(){
-        this.hideMessage(this.boardParams.getMessageElement(), this.boardParams.getMessageElementClass())
-     }
-
-    showTask(){
-        this.showMessage(this.boardParams.getMessageElementClass(), this.boardParams.getMessageElement(), this.task.getTask()); 
     }
 
-    makeTaskSmaller(){
-        //Изменить класс
+    removeStartMessage() {
+        this.hideMessage(this.boardParams.getMessageElement(), this.boardParams.getCurrentMessageClass())
     }
 
-    playTask(){
+    showTask() {
+        this.showMessage(
+            this.boardParams.getCurrentMessageClass(),
+            this.boardParams.getMessageElement(),
+            [this.boardParams.getUpperClass()],
+            this.task.getTask(),
+            true);
+    }
+
+    moveTastToStaticContainer() {
+        let node = document.querySelector('.' + this.boardParams.getCurrentMessageClass() + ' ' + this.boardParams.getMessageElement());
+        node.classList.remove(this.boardParams.getUpperClass());
+        node.classList.add(this.boardParams.getNormalClass());
+        let targetNode = document.querySelector('.' + this.boardParams.getStaticMessageClass());
+        targetNode.appendChild(node.cloneNode(true));
+        node.parentNode.removeChild(node);
+    }
+
+    playTask() {
         return true;
     }
 
-    showTaskStep(step){
-        this.showMessage(this.boardParams.getMessageElementClass(), this.boardParams.getMessageElement(), this.task.getTaskStep(step))
+    showTaskStep(step) {
+        //Очистить контейнер
+        this.showMessage(
+            this.boardParams.getMessageElementClass(),
+            this.boardParams.getMessageElement(),
+            [this.boardParams.getNormalClass()],
+            this.task.getTaskStep(step),
+            true)
+        this.showStep(step);
+        //Вывести первый блок таблицы
     }
 
 
-    showTask() { }
     showTaskByPart() { }
     showLessTask() { }
     showInstruction() { }
@@ -184,18 +299,89 @@ class mathBoard {
     //если нет ответа  - показать подсказку на 2 секунды
     //
 
+    clearContainer(containerClass){
+        let node = document.querySelector('.'+containerClass);
+        for (let element of node.children){
+            node.removeChild(element);
+        }
+        
+    }
 
-    
-    showMessage(parentClass, containerType, message) {
+    showMessage(parentClass, containerType, containerClass = [], message = '', withTags = false) {
         let parent = document.querySelector('.' + parentClass);
         let node = document.createElement(containerType);
-        node.classList.add(this.boardParams.getUpperClass());
+        for (let element of containerClass) {
+            node.classList.add(element);
+        }
         parent.appendChild(node);
-        node.textContent = message;
+        if (withTags == true) { node.innerHTML = message } else { node.textContent = message }
     }
 
     hideMessage(containerType, containerClass) {
         let node = document.querySelector('.' + containerClass + ' ' + containerType);
         node.parentNode.removeChild(node);
     }
+
+    showStep(step) {
+        let headerNode = '';
+        let summandNode = '';
+        let textNode ='';
+        let imgNode = '';
+        switch (step) {
+            case 0:
+
+                /* Генерация картинки */
+                headerNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                headerNode.innerText = "Было";
+
+                imgNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                //imgNode.src = this.task.getImage(this.task.summand[1]); //@implement
+
+                summandNode = document.createElement(this.boardParams.getTableElement('summandContainer'));
+                summandNode.innerHTML = this.task.getSummand(1);
+
+                document.querySelector('.' +
+                    this.boardParams.getContainer('table')).appendChild(
+                        headerNode);
+                document.querySelector('.' +
+                    this.boardParams.getContainer('table')).appendChild(
+                        imgNode);
+                document.querySelector('.' +
+                    this.boardParams.getContainer('table')).appendChild(
+                        summandNode);
+                break;
+            case 1:
+                headerNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                headerNode.innerText = document.querySelector('span').innerText;
+
+                textNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                textNode.innerHTML = '+'; //@implement
+
+                document.querySelector('.'+this.boardParams.getContainer('table')).appendChild(headerNode);
+                document.querySelector('.'+this.boardParams.getContainer('table')).appendChild(textNode);
+                document.querySelector('.'+this.boardParams.getContainer('table')).appendChild(textNode);
+                break;
+            case 2:
+                headerNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                headerNode.innerText = "Сколько положили"
+
+                imgNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                imgNode.src = this.task.getImage(this.task.summand[2]); //@implement
+
+                textNode = document.createElement(this.boardParams.getTableElement('textContainer'));
+                textNode.innerHTML = this.task.getSummand(2); //@implement
+
+                document.querySelector(this.boardParams.getContainer('table')).appendChild(headerNode);
+                document.querySelector(this.boardParams.getContainer('table')).appendChild(imgNode);
+                document.querySelector(this.boardParams.getContainer('table')).appendChild(textNode);
+
+
+
+                break;
+            default:
+                throw new Error();
+        }
+    }
+
+
 }
