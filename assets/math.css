@@ -10,5 +10,9 @@
   cursor: pointer ;
 }
 .upper{
-  font-size: 18vh;
+  font-size: 12vh;
+}
+
+.normal {
+  font-size: 6vh;
 }
